@@ -38,6 +38,6 @@ public class Invoice {
     }
 
     public BigDecimal getTotal() {
-        return BigDecimal.ZERO;
+        return getSubtotal().add(getTax());
     }
 }
