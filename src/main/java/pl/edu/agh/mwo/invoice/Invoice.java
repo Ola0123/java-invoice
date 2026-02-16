@@ -34,7 +34,18 @@ public class Invoice {
     }
 
     public BigDecimal getTax() {
-        return BigDecimal.ZERO;
+        BigDecimal tax = BigDecimal.ZERO;
+        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+
+            BigDecimal productTax =
+                    product.getPrice()
+                            .multiply(product.getTaxPercent())
+                            .multiply(BigDecimal.valueOf(quantity));
+            tax = tax.add(productTax);
+        }
+        return tax;
     }
 
     public BigDecimal getTotal() {
