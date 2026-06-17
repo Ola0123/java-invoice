@@ -1,62 +1,87 @@
 package pl.edu.agh.mwo.invoice;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import pl.edu.agh.mwo.invoice.product.Product;
 
 public class Invoice {
-    private Map<Product, Integer> products = new HashMap<>();
+    private static int nextNumber = 1;
+    private final int number;
+    private final Map<Product, Integer> products = new LinkedHashMap<Product, Integer>();
+
+    public Invoice() {
+        number = nextNumber++;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public String getPrintout() {
+        StringBuilder printout = new StringBuilder();
+        String separator = System.lineSeparator();
+
+        printout.append("Numer faktury: ")
+                .append(number)
+                .append(separator);
+
+        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+
+            printout.append(product.getName())
+                    .append(", ")
+                    .append(quantity)
+                    .append(" szt., ")
+                    .append(product.getPrice())
+                    .append(separator);
+        }
+
+        printout.append("Liczba pozycji: ")
+                .append(products.size());
+
+        return printout.toString();
+    }
 
     public void addProduct(Product product) {
         addProduct(product, 1);
     }
 
     public void addProduct(Product product, Integer quantity) {
-
-        if (product == null) {
-            throw new IllegalArgumentException("Product cannot be null");
+        if (product == null || quantity <= 0) {
+            throw new IllegalArgumentException();
         }
 
-        if (quantity == null || quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
+        Integer currentQuantity = products.get(product);
+
+        if (currentQuantity == null) {
+            products.put(product, quantity);
+        } else {
+            products.put(product, currentQuantity + quantity);
         }
-        products.put(product, quantity);
     }
 
-    public BigDecimal getSubtotal() {
-
-        BigDecimal subtotal = BigDecimal.ZERO;
-
-        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-            Product product = entry.getKey();
-            Integer quantity = entry.getValue();
-
-            subtotal = subtotal.add(
-                    product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+    public BigDecimal getNetTotal() {
+        BigDecimal totalNet = BigDecimal.ZERO;
+        for (Product product : products.keySet()) {
+            BigDecimal quantity = new BigDecimal(products.get(product));
+            totalNet = totalNet.add(product.getPrice().multiply(quantity));
         }
-        return subtotal;
+        return totalNet;
     }
 
-    public BigDecimal getTax() {
-        BigDecimal tax = BigDecimal.ZERO;
-        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-            Product product = entry.getKey();
-            Integer quantity = entry.getValue();
-
-            BigDecimal productTax =
-                    product.getPrice()
-                            .multiply(product.getTaxPercent())
-                            .multiply(BigDecimal.valueOf(quantity));
-            tax = tax.add(productTax);
-        }
-        return tax;
+    public BigDecimal getTaxTotal() {
+        return getGrossTotal().subtract(getNetTotal());
     }
 
-    public BigDecimal getTotal() {
-        return getSubtotal().add(getTax());
+    public BigDecimal getGrossTotal() {
+        BigDecimal totalGross = BigDecimal.ZERO;
+        for (Product product : products.keySet()) {
+            BigDecimal quantity = new BigDecimal(products.get(product));
+            totalGross = totalGross.add(product.getPriceWithTax().multiply(quantity));
+        }
+        return totalGross;
     }
 }

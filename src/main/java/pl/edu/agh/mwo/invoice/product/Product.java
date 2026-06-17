@@ -1,6 +1,7 @@
 package pl.edu.agh.mwo.invoice.product;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public abstract class Product {
     private final String name;
@@ -10,15 +11,10 @@ public abstract class Product {
     private final BigDecimal taxPercent;
 
     protected Product(String name, BigDecimal price, BigDecimal tax) {
-
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Product name cannot be null or blank");
+        if (name == null || name.equals("") || price == null || tax == null || tax.compareTo(new BigDecimal(0)) < 0
+                || price.compareTo(new BigDecimal(0)) < 0) {
+            throw new IllegalArgumentException();
         }
-
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Product price cannot be null or negative");
-        }
-
         this.name = name;
         this.price = price;
         this.taxPercent = tax;
@@ -37,6 +33,30 @@ public abstract class Product {
     }
 
     public BigDecimal getPriceWithTax() {
-        return price.add(price.multiply(taxPercent));
+        return price.multiply(taxPercent).add(price);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        Product product = (Product) object;
+
+        return Objects.equals(getName(), product.getName())
+                && getPrice().compareTo(product.getPrice()) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                getClass(),
+                getName(),
+                getPrice().stripTrailingZeros());
     }
 }
