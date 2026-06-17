@@ -12,6 +12,8 @@ import pl.edu.agh.mwo.invoice.product.DairyProduct;
 import pl.edu.agh.mwo.invoice.product.OtherProduct;
 import pl.edu.agh.mwo.invoice.product.Product;
 import pl.edu.agh.mwo.invoice.product.TaxFreeProduct;
+import pl.edu.agh.mwo.invoice.product.BottleOfWine;
+import pl.edu.agh.mwo.invoice.product.FuelCanister;
 
 public class InvoiceTest {
     private Invoice invoice;
@@ -180,5 +182,25 @@ public class InvoiceTest {
                 + "Liczba pozycji: 1";
 
         Assert.assertEquals(expected, invoice.getPrintout());
+    }
+
+    @Test
+    public void testBottleOfWineIncludesVatAndExciseDuty() {
+        invoice.addProduct(
+                new BottleOfWine("Wino", new BigDecimal("10")));
+
+        Assert.assertThat(
+                new BigDecimal("7.86"),
+                Matchers.comparesEqualTo(invoice.getTaxTotal()));
+    }
+
+    @Test
+    public void testFuelCanisterIncludesOnlyExciseDuty() {
+        invoice.addProduct(
+                new FuelCanister("Paliwo", new BigDecimal("10")));
+
+        Assert.assertThat(
+                new BigDecimal("5.56"),
+                Matchers.comparesEqualTo(invoice.getTaxTotal()));
     }
     }
