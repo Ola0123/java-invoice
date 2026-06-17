@@ -16,6 +16,7 @@ import pl.edu.agh.mwo.invoice.product.TaxFreeProduct;
 public class InvoiceTest {
     private Invoice invoice;
 
+
     @Before
     public void createEmptyInvoiceForTheTest() {
         invoice = new Invoice();
@@ -124,5 +125,16 @@ public class InvoiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAddingNullProduct() {
         invoice.addProduct(null);
+    }
+
+    @Test
+    public void testInvoiceNumbersAreAssignedAutomatically() {
+        Invoice firstInvoice = new Invoice();
+        Invoice secondInvoice = new Invoice();
+
+        Assert.assertEquals(
+                firstInvoice.getNumber() + 1,
+                secondInvoice.getNumber()
+        );
     }
 }
