@@ -1,7 +1,7 @@
 package pl.edu.agh.mwo.invoice;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import pl.edu.agh.mwo.invoice.product.Product;
@@ -9,7 +9,7 @@ import pl.edu.agh.mwo.invoice.product.Product;
 public class Invoice {
     private static int nextNumber = 1;
     private final int number;
-    private final Map<Product, Integer> products = new HashMap<Product, Integer>();
+    private final Map<Product, Integer> products = new LinkedHashMap<Product, Integer>();
 
     public Invoice() {
         number = nextNumber++;
@@ -17,6 +17,32 @@ public class Invoice {
 
     public int getNumber() {
         return number;
+    }
+
+    public String getPrintout() {
+        StringBuilder printout = new StringBuilder();
+        String separator = System.lineSeparator();
+
+        printout.append("Numer faktury: ")
+                .append(number)
+                .append(separator);
+
+        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+
+            printout.append(product.getName())
+                    .append(", ")
+                    .append(quantity)
+                    .append(" szt., ")
+                    .append(product.getPrice())
+                    .append(separator);
+        }
+
+        printout.append("Liczba pozycji: ")
+                .append(products.size());
+
+        return printout.toString();
     }
 
     public void addProduct(Product product) {

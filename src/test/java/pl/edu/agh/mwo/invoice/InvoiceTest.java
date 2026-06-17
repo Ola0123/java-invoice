@@ -137,4 +137,25 @@ public class InvoiceTest {
                 secondInvoice.getNumber()
         );
     }
-}
+
+        @Test
+        public void testInvoicePrintoutContainsProductsAndInvoiceNumber() {
+            invoice.addProduct(
+                    new TaxFreeProduct("Kubek", new BigDecimal("5")), 2);
+            invoice.addProduct(
+                    new DairyProduct("Ser", new BigDecimal("10")), 3);
+
+            String separator = System.lineSeparator();
+
+            String expected = "Numer faktury: "
+                    + invoice.getNumber()
+                    + separator
+                    + "Kubek, 2 szt., 5"
+                    + separator
+                    + "Ser, 3 szt., 10"
+                    + separator
+                    + "Liczba pozycji: 2";
+
+            Assert.assertEquals(expected, invoice.getPrintout());
+        }
+    }
