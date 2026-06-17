@@ -158,4 +158,27 @@ public class InvoiceTest {
 
             Assert.assertEquals(expected, invoice.getPrintout());
         }
+
+    @Test
+    public void testAddingEquivalentProductsIncreasesQuantity() {
+        Product firstMug = new TaxFreeProduct(
+                "Kubek", new BigDecimal("5"));
+
+        Product secondMug = new TaxFreeProduct(
+                "Kubek", new BigDecimal("5.00"));
+
+        invoice.addProduct(firstMug, 2);
+        invoice.addProduct(secondMug, 3);
+
+        String separator = System.lineSeparator();
+
+        String expected = "Numer faktury: "
+                + invoice.getNumber()
+                + separator
+                + "Kubek, 5 szt., 5"
+                + separator
+                + "Liczba pozycji: 1";
+
+        Assert.assertEquals(expected, invoice.getPrintout());
+    }
     }

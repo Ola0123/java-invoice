@@ -53,7 +53,14 @@ public class Invoice {
         if (product == null || quantity <= 0) {
             throw new IllegalArgumentException();
         }
-        products.put(product, quantity);
+
+        Integer currentQuantity = products.get(product);
+
+        if (currentQuantity == null) {
+            products.put(product, quantity);
+        } else {
+            products.put(product, currentQuantity + quantity);
+        }
     }
 
     public BigDecimal getNetTotal() {
